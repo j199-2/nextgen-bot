@@ -1,7 +1,5 @@
-const Groq = require('groq-sdk');
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 const SYSTEM_PROMPT = `# Role
 Eres la IA experta en redes sociales, algoritmos de formato vertical y la asesora oficial de ventas automatizadas del ecosistema "NextGen Creators".
@@ -48,7 +46,7 @@ Habla con mucha energía, mentalidad de clipero/creador experto, sé directa, pr
 3. El Trabajo Multiplica: El éxito en el reto de 30 días depende de que el alumno aplique la metodología de forma manual y constante. Prohibido prometer "Automatización Total", "Riqueza Rápida" o venderlo como "Software de un Clic".`;
 
 module.exports = async (req, res) => {
-  console.log("✅ WEBHOOK RECIBIDO EN VERCEL");
+  console.log("✅ WEBHOOK RECIBIDO");
 
   if (req.method !== 'POST') {
     return res.status(200).send('Webhook activo y escuchando de forma correcta 🚀');
@@ -56,38 +54,56 @@ module.exports = async (req, res) => {
 
   try {
     const { message } = req.body;
-    console.log("Mensaje del usuario:", message ? message.text : "Sin texto");
+    if (!message || !message.text) return res.status(200).send('OK');
 
-    if (message && message.text) {
-      const chatId = message.chat.id;
-      const userText = message.text;
+    const chatId = message.chat.id;
+    const userText = message.text;
 
-      const chatCompletion = await groq.chat.completions.create({
+    console.log("🧠 Llamando a Groq...");
+
+    // Llamada directa a Groq sin librerías
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userText }
         ],
-        model: "llama3-8b-8192",
-        temperature: 0.6,
-      });
+        temperature: 0.6
+      })
+    });
 
-      const botResponse = chatCompletion.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
+    const groqData = await groqResponse.json();
 
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: botResponse
-        })
-      });
-
-      console.log("✅ Mensaje enviado de vuelta a Telegram");
+    // Si Groq devuelve un error, lo mostramos en los Logs
+    if (!groqResponse.ok) {
+      console.error("❌ ERROR DE GROQ:", JSON.stringify(groqData));
+      throw new Error("Groq falló");
     }
-    
+
+    const botResponse = groqData.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
+    console.log("📝 Respuesta generada:", botResponse.substring(0, 50) + "...");
+
+    // Enviar a Telegram
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: botResponse
+      })
+    });
+
+    console.log("✅ Mensaje enviado a Telegram");
     res.status(200).send('OK');
+
   } catch (error) {
-    console.error("❌ Error en el webhook:", error);
+    console.error("❌ Error general:", error.message);
     res.status(200).send('OK');
   }
 };
