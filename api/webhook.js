@@ -1,5 +1,5 @@
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const SYSTEM_PROMPT = `# Role
 Eres la IA experta en redes sociales, algoritmos de formato vertical y la asesora oficial de ventas automatizadas del ecosistema "NextGen Creators".
@@ -59,17 +59,19 @@ module.exports = async (req, res) => {
     const chatId = message.chat.id;
     const userText = message.text;
 
-    console.log("🧠 Llamando a Groq...");
+    console.log("🧠 Llamando a OpenRouter...");
 
-    // Llamada directa a Groq sin librerías
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    // Llamada a OpenRouter (Modelo 100% Gratis)
+    const orResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://nextgen-bot.vercel.app",
+        "X-Title": "NextGen Bot"
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "meta-llama/llama-3.1-8b-instruct:free",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userText }
@@ -78,15 +80,14 @@ module.exports = async (req, res) => {
       })
     });
 
-    const groqData = await groqResponse.json();
+    const orData = await orResponse.json();
 
-    // Si Groq devuelve un error, lo mostramos en los Logs
-    if (!groqResponse.ok) {
-      console.error("❌ ERROR DE GROQ:", JSON.stringify(groqData));
-      throw new Error("Groq falló");
+    if (!orResponse.ok) {
+      console.error("❌ ERROR DE OPENROUTER:", JSON.stringify(orData));
+      throw new Error("OpenRouter falló");
     }
 
-    const botResponse = groqData.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
+    const botResponse = orData.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
     console.log("📝 Respuesta generada:", botResponse.substring(0, 50) + "...");
 
     // Enviar a Telegram
