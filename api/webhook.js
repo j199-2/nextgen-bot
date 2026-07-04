@@ -48,7 +48,6 @@ Habla con mucha energía, mentalidad de clipero/creador experto, sé directa, pr
 3. El Trabajo Multiplica: El éxito en el reto de 30 días depende de que el alumno aplique la metodología de forma manual y constante. Prohibido prometer "Automatización Total", "Riqueza Rápida" o venderlo como "Software de un Clic".`;
 
 module.exports = async (req, res) => {
-  // Este grito nos dirá si Vercel realmente está recibiendo el mensaje
   console.log("✅ WEBHOOK RECIBIDO EN VERCEL");
 
   if (req.method !== 'POST') {
@@ -68,20 +67,18 @@ module.exports = async (req, res) => {
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userText }
         ],
-        model: "llama-3.1-70b-versatile",
+        model: "llama3-8b-8192",
         temperature: 0.6,
       });
 
       const botResponse = chatCompletion.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
 
-      // Enviamos la respuesta usando la herramienta nativa de Vercel (Fetch)
       await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
-          text: botResponse,
-          parse_mode: 'Markdown'
+          text: botResponse
         })
       });
 
