@@ -1,8 +1,7 @@
 const Groq = require('groq-sdk');
-const TelegramBot = require('node-telegram-bot-api');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 const SYSTEM_PROMPT = `# Role
 Eres la IA experta en redes sociales, algoritmos de formato vertical y la asesora oficial de ventas automatizadas del ecosistema "NextGen Creators".
@@ -49,13 +48,17 @@ Habla con mucha energía, mentalidad de clipero/creador experto, sé directa, pr
 3. El Trabajo Multiplica: El éxito en el reto de 30 días depende de que el alumno aplique la metodología de forma manual y constante. Prohibido prometer "Automatización Total", "Riqueza Rápida" o venderlo como "Software de un Clic".`;
 
 module.exports = async (req, res) => {
+  // Este grito nos dirá si Vercel realmente está recibiendo el mensaje
+  console.log("✅ WEBHOOK RECIBIDO EN VERCEL");
+
   if (req.method !== 'POST') {
     return res.status(200).send('Webhook activo y escuchando de forma correcta 🚀');
   }
 
   try {
     const { message } = req.body;
-    
+    console.log("Mensaje del usuario:", message ? message.text : "Sin texto");
+
     if (message && message.text) {
       const chatId = message.chat.id;
       const userText = message.text;
@@ -71,12 +74,23 @@ module.exports = async (req, res) => {
 
       const botResponse = chatCompletion.choices[0]?.message?.content || "Lo siento, mi cerebro de clipero tuvo un fallo. ¿Me repites la pregunta? 🔥";
 
-      await bot.sendMessage(chatId, botResponse, { parse_mode: 'Markdown' });
+      // Enviamos la respuesta usando la herramienta nativa de Vercel (Fetch)
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: botResponse,
+          parse_mode: 'Markdown'
+        })
+      });
+
+      console.log("✅ Mensaje enviado de vuelta a Telegram");
     }
     
     res.status(200).send('OK');
   } catch (error) {
-    console.error("Error en el webhook:", error);
+    console.error("❌ Error en el webhook:", error);
     res.status(200).send('OK');
   }
 };
