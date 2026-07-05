@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen Creators | Soporte IA</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b141a; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; }
+        .chat-container { width: 100%; max-width: 500px; background-color: #111b21; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .chat-header { background-color: #202c33; color: #e9edef; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #2a3942; }
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 10px; font-size: 14px; line-height: 1.4; color: #e9edef; white-space: pre-wrap; }
+        .bot-message { background-color: #202c33; align-self: flex-start; border-top-left-radius: 0; }
+        .user-message { background-color: #005c4b; align-self: flex-end; border-top-right-radius: 0; }
+        .options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        .option-btn { background-color: #2a3942; color: #53bdeb; border: 1px solid #53bdeb; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .option-btn:hover { background-color: #53bdeb; color: #fff; }
+        .input-area { background-color: #202c33; padding: 15px; display: flex; gap: 10px; }
+        .email-input { flex: 1; background-color: #2a3942; border: none; color: #e9edef; padding: 10px 15px; border-radius: 20px; outline: none; }
+        .send-btn { background-color: #005c4b; border: none; color: #fff; padding: 0 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .typing { font-style: italic; color: #8696a0; font-size: 13px; align-self: flex-start; margin-left: 15px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">🚀 NextGen Creators | Soporte IA</div>
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">¡Hola! 👋 Bienvenido a NextGen Creators. Soy la IA experta en ayudarte a facturar en USD con contenido vertical. ¿Qué deseas saber primero?</div>
+            <div class="options-container" id="initialOptions">
+                <button class="option-btn" onclick="askAI('¿De qué trata la propuesta y el curso?')">De qué trata</button>
+                <button class="option-btn" onclick="askAI('¿En qué idiomas puedo hacer esto?')">Idiomas</button>
+                <button class="option-btn" onclick="askAI('Quiero saber el precio y la propuesta')">Precio/Info</button>
+            </div>
+        </div>
+        <div class="input-area" id="inputArea" style="display: none;">
+            <input type="email" class="email-input" id="emailInput" placeholder="Escribe tu correo aquí...">
+            <button class="send-btn" onclick="submitEmail()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let step = 1;
+        const chatBox = document.getElementById('chatBox');
+        const initialOptions = document.getElementById('initialOptions');
+        const inputArea = document.getElementById('inputArea');
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
+            div.innerText = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addTyping() {
+            const div = document.createElement('div');
+            div.classList.add('message', 'bot-message', 'typing');
+            div.innerText = "Escribiendo...";
+            div.id = "typingIndicator";
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        async function askAI(question) {
+            addMessage(question, 'user');
+            if (initialOptions) initialOptions.style.display = 'none';
+            
+            addTyping();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: question })
+                });
+                const data = await response.json();
+                removeTyping();
+                addMessage(data.reply, 'bot');
+                
+                step++;
+                if (step === 4) {
+                    setTimeout(() => {
+                        addMessage("🔥 ¡Genial! Para enviarte la prueba gratuita y el método completo, ¿podrías dejarme tu correo electrónico?", 'bot');
+                        inputArea.style.display = 'flex';
+                    }, 500);
+                }
+            } catch (error) {
+                removeTyping();
+                addMessage("Hubo un error de conexión. Recarga la página.", 'bot');
+            }
+        }
+
+        function submitEmail() {
+            const email = document.getElementById('emailInput').value;
+            if(!email.includes('@')) {
+                alert("Por favor ingresa un correo válido.");
+                return;
+            }
+            addMessage(email, 'user');
+            inputArea.style.display = 'none';
+            
+            setTimeout(() => {
+                addMessage("¡Perfecto! Lo tengo guardado. 📧\n\n¿Listo para empezar a crear contenido que facture en dólares?\n\nHaz clic abajo para asegurar tu acceso de por vida (Pago único de $149.99):", 'bot');
+                setTimeout(() => {
+                    const linkBtn = document.createElement('a');
+                    linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
+                    linkBtn.target = "_blank";
+                    linkBtn.innerHTML = '<button class="option-btn" style="background-color: #005c4b; color: white; border: none; font-size: 16px; padding: 10px 20px;">Sí, quiero mi acceso ahora 🚀</button>';
+                    chatBox.appendChild(linkBtn);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
