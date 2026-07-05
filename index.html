@@ -16,8 +16,8 @@
         .option-btn { background-color: #2a3942; color: #53bdeb; border: 1px solid #53bdeb; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-size: 13px; transition: 0.2s; }
         .option-btn:hover { background-color: #53bdeb; color: #fff; }
         .input-area { background-color: #202c33; padding: 15px; display: flex; gap: 10px; }
-        .email-input { flex: 1; background-color: #2a3942; border: none; color: #e9edef; padding: 10px 15px; border-radius: 20px; outline: none; }
-        .send-btn { background-color: #005c4b; border: none; color: #fff; padding: 0 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .text-input { flex: 1; background-color: #2a3942; border: none; color: #e9edef; padding: 10px 15px; border-radius: 20px; outline: none; }
+        .send-btn { background-color: #005c4b; border: none; color: #fff; padding: 0 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; }
         .typing { font-style: italic; color: #8696a0; font-size: 13px; align-self: flex-start; margin-left: 15px; }
     </style>
 </head>
@@ -25,24 +25,33 @@
     <div class="chat-container">
         <div class="chat-header">🚀 NextGen Creators | Soporte IA</div>
         <div class="chat-box" id="chatBox">
-            <div class="message bot-message">¡Hola! 👋 Bienvenido a NextGen Creators. Soy la IA experta en ayudarte a facturar en USD con contenido vertical. ¿Qué deseas saber primero?</div>
+            <div class="message bot-message">¡Hola! 👋 Bienvenido a la Escuela NextGen Creators. Soy la IA experta en ayudarte a facturar en USD con contenido vertical. ¿Qué deseas saber primero?</div>
             <div class="options-container" id="initialOptions">
                 <button class="option-btn" onclick="askAI('¿De qué trata la propuesta y el curso?')">De qué trata</button>
                 <button class="option-btn" onclick="askAI('¿En qué idiomas puedo hacer esto?')">Idiomas</button>
                 <button class="option-btn" onclick="askAI('Quiero saber el precio y la propuesta')">Precio/Info</button>
             </div>
         </div>
-        <div class="input-area" id="inputArea" style="display: none;">
-            <input type="email" class="email-input" id="emailInput" placeholder="Escribe tu correo aquí...">
-            <button class="send-btn" onclick="submitEmail()">Enviar</button>
+        <div class="input-area" id="inputArea">
+            <input type="text" class="text-input" id="messageInput" placeholder="Escribe tu mensaje...">
+            <button class="send-btn" onclick="handleSend()">Enviar</button>
         </div>
     </div>
 
     <script>
         let step = 1;
+        let isEmailStep = false;
         const chatBox = document.getElementById('chatBox');
         const initialOptions = document.getElementById('initialOptions');
-        const inputArea = document.getElementById('inputArea');
+        const messageInput = document.getElementById('messageInput');
+
+        // Permitir enviar con la tecla Enter
+        messageInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                handleSend();
+            }
+        });
 
         function addMessage(text, sender) {
             const div = document.createElement('div');
@@ -66,6 +75,18 @@
             if (typing) typing.remove();
         }
 
+        function handleSend() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            if (isEmailStep) {
+                submitEmail(text);
+            } else {
+                askAI(text);
+            }
+            messageInput.value = ''; // Limpiar caja de texto
+        }
+
         async function askAI(question) {
             addMessage(question, 'user');
             if (initialOptions) initialOptions.style.display = 'none';
@@ -83,10 +104,11 @@
                 addMessage(data.reply, 'bot');
                 
                 step++;
-                if (step === 4) {
+                if (step === 4 && !isEmailStep) {
+                    isEmailStep = true;
                     setTimeout(() => {
-                        addMessage("🔥 ¡Genial! Para enviarte la prueba gratuita y el método completo, ¿podrías dejarme tu correo electrónico?", 'bot');
-                        inputArea.style.display = 'flex';
+                        addMessage("🔥 ¡Genial! Para enviarte la prueba gratuita y el método completo, ¿podrías dejarme tu correo electrónico en la caja de texto de abajo?", 'bot');
+                        messageInput.placeholder = "Escribe tu correo aquí...";
                     }, 500);
                 }
             } catch (error) {
@@ -95,14 +117,15 @@
             }
         }
 
-        function submitEmail() {
-            const email = document.getElementById('emailInput').value;
-            if(!email.includes('@')) {
-                alert("Por favor ingresa un correo válido.");
+        function submitEmail(email) {
+            if(!email.includes('@') || !email.includes('.')) {
+                addMessage("Por favor ingresa un correo válido.", 'bot');
                 return;
             }
             addMessage(email, 'user');
-            inputArea.style.display = 'none';
+            isEmailStep = false;
+            messageInput.placeholder = "Escribe tu mensaje...";
+            messageInput.disabled = true; // Bloqueamos el chat después del correo
             
             setTimeout(() => {
                 addMessage("¡Perfecto! Lo tengo guardado. 📧\n\n¿Listo para empezar a crear contenido que facture en dólares?\n\nHaz clic abajo para asegurar tu acceso de por vida (Pago único de $149.99):", 'bot');
