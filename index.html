@@ -19,6 +19,7 @@
         .text-input { flex: 1; background-color: #2a3942; border: none; color: #e9edef; padding: 10px 15px; border-radius: 20px; outline: none; }
         .send-btn { background-color: #005c4b; border: none; color: #fff; padding: 0 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; }
         .typing { font-style: italic; color: #8696a0; font-size: 13px; align-self: flex-start; margin-left: 15px; }
+        .pay-btn { display: block; text-align: center; text-decoration: none; background-color: #005c4b; color: white; border: none; font-size: 16px; padding: 12px 20px; border-radius: 15px; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -45,7 +46,6 @@
         const initialOptions = document.getElementById('initialOptions');
         const messageInput = document.getElementById('messageInput');
 
-        // Permitir enviar con la tecla Enter
         messageInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -75,6 +75,18 @@
             if (typing) typing.remove();
         }
 
+        function showPaymentButton() {
+            if (document.getElementById('payLink')) return; // Evita que se duplique
+            const linkBtn = document.createElement('a');
+            linkBtn.id = 'payLink';
+            linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
+            linkBtn.target = "_blank";
+            linkBtn.className = 'pay-btn';
+            linkBtn.innerText = "Sí, quiero mi acceso ahora 🚀";
+            chatBox.appendChild(linkBtn);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
         function handleSend() {
             const text = messageInput.value.trim();
             if (!text) return;
@@ -84,7 +96,7 @@
             } else {
                 askAI(text);
             }
-            messageInput.value = ''; // Limpiar caja de texto
+            messageInput.value = '';
         }
 
         async function askAI(question) {
@@ -104,12 +116,15 @@
                 addMessage(data.reply, 'bot');
                 
                 step++;
-                if (step === 4 && !isEmailStep) {
-                    isEmailStep = true;
+                
+                // Lógica del Embudo: En el paso 3 pedimos correo (opcional) y lanzamos el botón
+                if (step === 3) {
                     setTimeout(() => {
-                        addMessage("🔥 ¡Genial! Para enviarte la prueba gratuita y el método completo, ¿podrías dejarme tu correo electrónico en la caja de texto de abajo?", 'bot');
-                        messageInput.placeholder = "Escribe tu correo aquí...";
-                    }, 500);
+                        addMessage("🔥 ¡Genial! Ya sabes cómo funciona esto. Para enviarte la prueba gratuita, deja tu correo en la caja de texto (opcional). O si ya decidiste empezar a facturar y ahorrar en softwares, tienes el botón de acceso directo abajo:", 'bot');
+                        showPaymentButton();
+                        isEmailStep = true;
+                        messageInput.placeholder = "Tu correo (opcional)...";
+                    }, 800);
                 }
             } catch (error) {
                 removeTyping();
@@ -118,26 +133,23 @@
         }
 
         function submitEmail(email) {
-            if(!email.includes('@') || !email.includes('.')) {
-                addMessage("Por favor ingresa un correo válido.", 'bot');
-                return;
-            }
             addMessage(email, 'user');
+            
+            if(email.includes('@') && email.includes('.')) {
+                // AQUÍ SE GUARDARÍA EL CORREO EN UN FUTURO (Google Sheets, etc)
+                addMessage("¡Perfecto! Tengo tu correo guardado. 📧 Te llegará la info ahí.", 'bot');
+            } else {
+                // Si no puso correo válido, igual lo dejamos pasar al pago
+                addMessage("No hay problema, seguimos.", 'bot');
+            }
+
             isEmailStep = false;
             messageInput.placeholder = "Escribe tu mensaje...";
-            messageInput.disabled = true; // Bloqueamos el chat después del correo
             
             setTimeout(() => {
-                addMessage("¡Perfecto! Lo tengo guardado. 📧\n\n¿Listo para empezar a crear contenido que facture en dólares?\n\nHaz clic abajo para asegurar tu acceso de por vida (Pago único de $149.99):", 'bot');
-                setTimeout(() => {
-                    const linkBtn = document.createElement('a');
-                    linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
-                    linkBtn.target = "_blank";
-                    linkBtn.innerHTML = '<button class="option-btn" style="background-color: #005c4b; color: white; border: none; font-size: 16px; padding: 10px 20px;">Sí, quiero mi acceso ahora 🚀</button>';
-                    chatBox.appendChild(linkBtn);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }, 500);
-            }, 1000);
+                addMessage("¿Listo para asegurar tu cupo en la escuela y dejar de pagar herramientas de pago para siempre? 🚀", 'bot');
+                showPaymentButton(); // Volvemos a asegurar que el botón esté visible
+            }, 800);
         }
     </script>
 </body>
