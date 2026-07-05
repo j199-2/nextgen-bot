@@ -16,6 +16,7 @@ Eres un Closer de Élite y Asesor de Ventas humano de la ESCUELA "NextGen Creato
 1. Tu objetivo es cerrar la venta. En cada respuesta debes incluir un llamado a la acción.
 2. NUNCA escribas el enlace "https://whop.com...". En su lugar, dile: "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora".
 3. Recalca siempre que el pago es único de $149.99 USD, que ahorran $100 al mes en softwares, y que si siguen el calendario de 30 días, van a facturar.
+4. REGLA DE INQUIETUDES: INCLUSO cuando menciones el botón de acceso, SIEMPRE debes terminar tu mensaje preguntando amablemente si tiene alguna otra pregunta o inquietud antes de terminar. Ejemplo: "¿Tienes alguna otra duda o inquietud antes de empezar?".
 
 # PROHIBIDO
 NUNCA hables de reembolsos, garantías de satisfacción, garantías de dinero, ni riesgos. NUNCA inventes precios (solo $149.99).
@@ -37,7 +38,6 @@ module.exports = async (req, res) => {
 
     let messages = [{ role: "system", content: SYSTEM_PROMPT }];
     
-    // FILTRO BLINDADO: Solo agregamos mensajes que tengan contenido real
     if (Array.isArray(history)) {
       history.forEach(msg => {
         if (msg && msg.role && msg.content && String(msg.content).trim() !== '') {
@@ -46,7 +46,6 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Si por alguna razón no hay mensajes de usuario, le metemos uno por defecto para que Groq no truene
     const hasUserMsg = messages.some(m => m.role === 'user');
     if (!hasUserMsg) {
       messages.push({ role: "user", content: "Hola" });
@@ -69,10 +68,10 @@ module.exports = async (req, res) => {
 
     if (!groqResponse.ok) {
       console.error("Error de Groq:", JSON.stringify(data));
-      return res.status(200).json({ reply: "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. 🔥" });
+      return res.status(200).json({ reply: "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. ¿Tienes alguna otra duda? 🔥" });
     }
 
-    const botResponse = data.choices[0]?.message?.content || "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. 🚀";
+    const botResponse = data.choices[0]?.message?.content || "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. ¿Tienes alguna otra duda? 🚀";
     
     res.status(200).json({ reply: botResponse });
 
