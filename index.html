@@ -6,8 +6,8 @@
     <title>NextGen Creators | Soporte</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; color: #fff; }
-        .chat-container { width: 100%; max-width: 500px; background-color: #0a0a0a; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(138, 43, 226, 0.2); border-left: 1px solid #222; border-right: 1px solid #222; }
-        .chat-header { background-color: #000000; color: #ccc; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #8a2be2; display: flex; align-items: center; justify-content: center; gap: 12px; letter-spacing: 1px; }
+        .chat-container { width: 100%; max-width: 500px; height: 100vh; background-color: #0a0a0a; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(138, 43, 226, 0.2); border-left: 1px solid #222; border-right: 1px solid #222; }
+        .chat-header { background-color: #000000; color: #ccc; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #8a2be2; display: flex; align-items: center; justify-content: center; gap: 12px; letter-spacing: 1px; flex-shrink: 0; }
         .icon-box { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #b026ff, #4169e1); box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); display: flex; align-items: center; justify-content: center; }
         .icon-box svg { width: 28px; height: 28px; fill: #fff; }
         .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-image: radial-gradient(circle at 50% 0%, #1a0a2e 0%, #0a0a0a 50%); }
@@ -20,19 +20,21 @@
         .options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; align-self: flex-start; margin-left: 40px; }
         .option-btn { background-color: transparent; color: #b026ff; border: 1px solid #b026ff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: 0.3s; font-weight: bold; }
         .option-btn:hover { background-color: #b026ff; color: #fff; box-shadow: 0 0 10px #b026ff; }
-        .input-area { background-color: #000; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
+        
+        .payment-footer { background-color: #000; padding: 10px 15px; border-top: 1px solid #2a2a2a; display: none; flex-shrink: 0; }
+        .pay-btn { display: block; text-align: center; text-decoration: none; background: linear-gradient(90deg, #8a2be2, #005c4b); color: white; border: none; font-size: 16px; padding: 12px 20px; border-radius: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
+        
+        .input-area { background-color: #000; padding: 15px; display: flex; gap: 10px; flex-shrink: 0; }
         .text-input { flex: 1; background-color: #111; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 20px; outline: none; }
         .text-input:focus { border-color: #8a2be2; }
         .send-btn { background: linear-gradient(135deg, #8a2be2, #4169e1); border: none; color: #fff; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; }
         .typing { font-style: italic; color: #888; font-size: 13px; align-self: flex-start; margin-left: 40px; }
-        .pay-btn { display: block; text-align: center; text-decoration: none; background: linear-gradient(90deg, #8a2be2, #005c4b); color: white; border: none; font-size: 16px; padding: 15px 20px; border-radius: 15px; margin-top: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
             <div class="icon-box">
-                <!-- Ícono de persona 3D -->
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
             NextGen Creators | Soporte
@@ -47,6 +49,11 @@
                 <button class="option-btn" onclick="startChat('es')">Español 🇪🇸</button>
             </div>
         </div>
+        
+        <div class="payment-footer" id="paymentFooter">
+            <a href="https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/" target="_blank" class="pay-btn">Sí, quiero mi acceso ahora 🚀</a>
+        </div>
+        
         <div class="input-area" id="inputArea">
             <input type="text" class="text-input" id="messageInput" placeholder="Type your message... / Escribe tu mensaje...">
             <button class="send-btn" onclick="handleSend()">Send</button>
@@ -60,6 +67,7 @@
         const chatBox = document.getElementById('chatBox');
         const initialOptions = document.getElementById('initialOptions');
         const messageInput = document.getElementById('messageInput');
+        const paymentFooter = document.getElementById('paymentFooter');
 
         const avatarSVG = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
 
@@ -114,15 +122,7 @@
         }
 
         function showPaymentButton() {
-            if (document.getElementById('payLink')) return;
-            const linkBtn = document.createElement('a');
-            linkBtn.id = 'payLink';
-            linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
-            linkBtn.target = "_blank";
-            linkBtn.className = 'pay-btn';
-            linkBtn.innerText = "Sí, quiero mi acceso ahora 🚀";
-            chatBox.appendChild(linkBtn);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            paymentFooter.style.display = 'block';
         }
 
         function startChat(lang) {
@@ -163,10 +163,8 @@
                 chatHistory.push({ role: "assistant", content: data.reply });
                 
                 botResponseCount++;
-                if (botResponseCount % 2 === 0) {
-                    setTimeout(() => {
-                        showPaymentButton();
-                    }, 500);
+                if (botResponseCount >= 2) {
+                    showPaymentButton();
                 }
             } catch (error) {
                 removeTyping();
