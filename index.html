@@ -8,12 +8,12 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; color: #fff; }
         .chat-container { width: 100%; max-width: 500px; background-color: #0a0a0a; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(138, 43, 226, 0.2); border-left: 1px solid #222; border-right: 1px solid #222; }
         .chat-header { background-color: #000000; color: #ccc; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #8a2be2; display: flex; align-items: center; justify-content: center; gap: 12px; letter-spacing: 1px; }
-        .icon-box { width: 45px; height: 45px; border-radius: 50%; background-color: #111; border: 2px solid #8a2be2; box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); display: flex; align-items: center; justify-content: center; }
-        .icon-box svg { width: 24px; height: 24px; fill: #b026ff; }
+        .icon-box { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #b026ff, #4169e1); box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); display: flex; align-items: center; justify-content: center; }
+        .icon-box svg { width: 28px; height: 28px; fill: #fff; }
         .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-image: radial-gradient(circle at 50% 0%, #1a0a2e 0%, #0a0a0a 50%); }
         .bot-msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; align-self: flex-start; }
-        .bot-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: #222; border: 1px solid #444; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .bot-avatar svg { width: 18px; height: 18px; fill: #b026ff; }
+        .bot-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #b026ff, #4169e1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .bot-avatar svg { width: 20px; height: 20px; fill: #fff; }
         .message { max-width: 100%; padding: 12px 15px; border-radius: 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
         .bot-message { background-color: #181818; color: #e0e0e0; border-top-left-radius: 0; border: 1px solid #2a2a2a; }
         .user-message { background: linear-gradient(135deg, #4b0082, #6a0dad); color: #fff; align-self: flex-end; border-top-right-radius: 0; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
@@ -32,13 +32,14 @@
     <div class="chat-container">
         <div class="chat-header">
             <div class="icon-box">
-                <svg viewBox="0 0 24 24"><path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg>
+                <!-- Ícono de persona 3D -->
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
             NextGen Creators | Soporte
         </div>
         <div class="chat-box" id="chatBox">
             <div class="bot-msg-wrapper">
-                <div class="bot-avatar"><svg viewBox="0 0 24 24"><path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg></div>
+                <div class="bot-avatar"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
                 <div class="message bot-message">Welcome! 👋 / ¡Bienvenido!<br>Please select your language to begin:<br><i>Selecciona tu idioma para empezar:</i></div>
             </div>
             <div class="options-container" id="initialOptions">
@@ -60,8 +61,7 @@
         const initialOptions = document.getElementById('initialOptions');
         const messageInput = document.getElementById('messageInput');
 
-        // Ícono SVG precargado para no repetir código
-        const avatarSVG = `<svg viewBox="0 0 24 24"><path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg>`;
+        const avatarSVG = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
 
         messageInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
@@ -162,7 +162,6 @@
                 addMessage(data.reply, 'bot');
                 chatHistory.push({ role: "assistant", content: data.reply });
                 
-                // REGLA MATEMÁTICA: Cada 2 respuestas del bot, mostramos el botón
                 botResponseCount++;
                 if (botResponseCount % 2 === 0) {
                     setTimeout(() => {
