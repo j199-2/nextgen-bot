@@ -29,12 +29,12 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <img src="images/logo.jpg" alt="NextGen Logo" class="chat-logo">
+            <img src="images/logo.jpg?v=2" alt="NextGen Logo" class="chat-logo" onerror="this.onerror=null;this.src='https://i.ibb.co/3yChcQH/nextgen-logo.jpg';">
             NextGen Creators | Soporte
         </div>
         <div class="chat-box" id="chatBox">
             <div class="bot-msg-wrapper">
-                <img src="images/logo.jpg" class="bot-avatar" onerror="this.style.display='none'">
+                <img src="images/logo.jpg?v=2" class="bot-avatar" onerror="this.onerror=null;this.style.display='none'">
                 <div class="message bot-message">Welcome! 👋 / ¡Bienvenido!<br>Please select your language to begin:<br><i>Selecciona tu idioma para empezar:</i></div>
             </div>
             <div class="options-container" id="initialOptions">
@@ -51,6 +51,7 @@
     <script>
         let step = 1;
         let isEmailStep = false;
+        let chatHistory = []; // AQUÍ GUARDAMOS LA MEMORIA DEL CHAT
         const chatBox = document.getElementById('chatBox');
         const initialOptions = document.getElementById('initialOptions');
         const messageInput = document.getElementById('messageInput');
@@ -67,7 +68,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'bot-msg-wrapper';
                 const avatar = document.createElement('img');
-                avatar.src = "images/logo.jpg";
+                avatar.src = "images/logo.jpg?v=2";
                 avatar.className = 'bot-avatar';
                 avatar.onerror = function() { this.style.display = 'none'; };
                 const div = document.createElement('div');
@@ -90,7 +91,7 @@
             wrapper.className = 'bot-msg-wrapper';
             wrapper.id = "typingWrapper";
             const avatar = document.createElement('img');
-            avatar.src = "images/logo.jpg";
+            avatar.src = "images/logo.jpg?v=2";
             avatar.className = 'bot-avatar';
             avatar.onerror = function() { this.style.display = 'none'; };
             const div = document.createElement('div');
@@ -141,17 +142,23 @@
 
         async function askAI(question) {
             addMessage(question, 'user');
+            // Guardamos el mensaje del usuario en la memoria
+            chatHistory.push({ role: "user", content: question });
+            
             addTyping();
 
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: question })
+                    // Le enviamos toda la memoria al cerebro
+                    body: JSON.stringify({ history: chatHistory })
                 });
                 const data = await response.json();
                 removeTyping();
                 addMessage(data.reply, 'bot');
+                // Guardamos la respuesta del bot en la memoria
+                chatHistory.push({ role: "assistant", content: data.reply });
                 
                 step++;
                 if (step >= 3) {
