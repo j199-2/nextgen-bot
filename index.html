@@ -3,39 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextGen Creators | Soporte IA</title>
+    <title>NextGen Creators | Soporte</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b141a; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; }
         .chat-container { width: 100%; max-width: 500px; background-color: #111b21; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .chat-header { background-color: #202c33; color: #e9edef; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #2a3942; }
+        .chat-header { background-color: #202c33; color: #e9edef; padding: 10px 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #2a3942; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .chat-logo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 10px 15px; border-radius: 10px; font-size: 14px; line-height: 1.4; color: #e9edef; white-space: pre-wrap; }
-        .bot-message { background-color: #202c33; align-self: flex-start; border-top-left-radius: 0; }
-        .user-message { background-color: #005c4b; align-self: flex-end; border-top-right-radius: 0; }
-        .options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        
+        /* Contenedor del mensaje del bot para incluir la mascota */
+        .bot-msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; align-self: flex-start; }
+        .bot-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        
+        .message { max-width: 100%; padding: 10px 15px; border-radius: 10px; font-size: 14px; line-height: 1.4; color: #e9edef; white-space: pre-wrap; }
+        .bot-message { background-color: #202c33; border-top-left-radius: 0; }
+        .user-message { background-color: #005c4b; align-self: flex-end; border-top-right-radius: 0; max-width: 80%; }
+        
+        .options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; align-self: flex-start; margin-left: 38px; }
         .option-btn { background-color: #2a3942; color: #53bdeb; border: 1px solid #53bdeb; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-size: 13px; transition: 0.2s; }
         .option-btn:hover { background-color: #53bdeb; color: #fff; }
         .input-area { background-color: #202c33; padding: 15px; display: flex; gap: 10px; }
         .text-input { flex: 1; background-color: #2a3942; border: none; color: #e9edef; padding: 10px 15px; border-radius: 20px; outline: none; }
         .send-btn { background-color: #005c4b; border: none; color: #fff; padding: 0 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; }
-        .typing { font-style: italic; color: #8696a0; font-size: 13px; align-self: flex-start; margin-left: 15px; }
+        .typing { font-style: italic; color: #8696a0; font-size: 13px; align-self: flex-start; margin-left: 38px; }
         .pay-btn { display: block; text-align: center; text-decoration: none; background-color: #005c4b; color: white; border: none; font-size: 16px; padding: 12px 20px; border-radius: 15px; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">🚀 NextGen Creators | Soporte IA</div>
+        <div class="chat-header">
+            <!-- ABAJO REEMPLAZA EL ENLACE POR EL DIRECTO QUE COPIASTE -->
+            <img src="https://i.ibb.co/AQUI-VA-TU-ENLACE.jpg" alt="NextGen Logo" class="chat-logo">
+            NextGen Creators | Soporte
+        </div>
         <div class="chat-box" id="chatBox">
-            <div class="message bot-message">¡Hola! 👋 Bienvenido a la Escuela NextGen Creators. Soy la IA experta en ayudarte a facturar en USD con contenido vertical. ¿Qué deseas saber primero?</div>
+            <div class="bot-msg-wrapper">
+                <!-- ABAJO REEMPLAZA EL ENLACE POR EL DIRECTO QUE COPIASTE -->
+                <img src="https://i.ibb.co/AQUI-VA-TU-ENLACE.jpg" class="bot-avatar">
+                <div class="message bot-message">Welcome! 👋 / ¡Bienvenido!<br>Please select your language to begin:<br><i>Selecciona tu idioma para empezar:</i></div>
+            </div>
             <div class="options-container" id="initialOptions">
-                <button class="option-btn" onclick="askAI('¿De qué trata la propuesta y el curso?')">De qué trata</button>
-                <button class="option-btn" onclick="askAI('¿En qué idiomas puedo hacer esto?')">Idiomas</button>
-                <button class="option-btn" onclick="askAI('Quiero saber el precio y la propuesta')">Precio/Info</button>
+                <button class="option-btn" onclick="startChat('en')">English 🇺🇸</button>
+                <button class="option-btn" onclick="startChat('es')">Español 🇪🇸</button>
             </div>
         </div>
         <div class="input-area" id="inputArea">
-            <input type="text" class="text-input" id="messageInput" placeholder="Escribe tu mensaje...">
-            <button class="send-btn" onclick="handleSend()">Enviar</button>
+            <input type="text" class="text-input" id="messageInput" placeholder="Type your message... / Escribe tu mensaje...">
+            <button class="send-btn" onclick="handleSend()">Send</button>
         </div>
     </div>
 
@@ -54,29 +68,58 @@
         });
 
         function addMessage(text, sender) {
-            const div = document.createElement('div');
-            div.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
-            div.innerText = text;
-            chatBox.appendChild(div);
+            if (sender === 'bot') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bot-msg-wrapper';
+                
+                const avatar = document.createElement('img');
+                // ABAJO REEMPLAZA EL ENLACE POR EL DIRECTO QUE COPIASTE
+                avatar.src = "https://i.ibb.co/AQUI-VA-TU-ENLACE.jpg";
+                avatar.className = 'bot-avatar';
+                
+                const div = document.createElement('div');
+                div.classList.add('message', 'bot-message');
+                div.innerText = text;
+                
+                wrapper.appendChild(avatar);
+                wrapper.appendChild(div);
+                chatBox.appendChild(wrapper);
+            } else {
+                const div = document.createElement('div');
+                div.classList.add('message', 'user-message');
+                div.innerText = text;
+                chatBox.appendChild(div);
+            }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         function addTyping() {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bot-msg-wrapper';
+            wrapper.id = "typingWrapper";
+            
+            const avatar = document.createElement('img');
+            // ABAJO REEMPLAZA EL ENLACE POR EL DIRECTO QUE COPIASTE
+            avatar.src = "https://i.ibb.co/AQUI-VA-TU-ENLACE.jpg";
+            avatar.className = 'bot-avatar';
+            
             const div = document.createElement('div');
             div.classList.add('message', 'bot-message', 'typing');
-            div.innerText = "Escribiendo...";
-            div.id = "typingIndicator";
-            chatBox.appendChild(div);
+            div.innerText = "Typing... / Escribiendo...";
+            
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         function removeTyping() {
-            const typing = document.getElementById('typingIndicator');
+            const typing = document.getElementById('typingWrapper');
             if (typing) typing.remove();
         }
 
         function showPaymentButton() {
-            if (document.getElementById('payLink')) return; // Evita que se duplique
+            if (document.getElementById('payLink')) return;
             const linkBtn = document.createElement('a');
             linkBtn.id = 'payLink';
             linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
@@ -85,6 +128,19 @@
             linkBtn.innerText = "Sí, quiero mi acceso ahora 🚀";
             chatBox.appendChild(linkBtn);
             chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function startChat(lang) {
+            if (initialOptions) initialOptions.style.display = 'none';
+            let prompt = "";
+            if (lang === 'es') {
+                addMessage("Español 🇪🇸", 'user');
+                prompt = "El usuario seleccionó Español. Saludalo y pídele su nombre para empezar.";
+            } else {
+                addMessage("English 🇺🇸", 'user');
+                prompt = "User selected English. Greet them and ask for their name to start.";
+            }
+            askAI(prompt);
         }
 
         function handleSend() {
@@ -101,8 +157,6 @@
 
         async function askAI(question) {
             addMessage(question, 'user');
-            if (initialOptions) initialOptions.style.display = 'none';
-            
             addTyping();
 
             try {
@@ -117,8 +171,7 @@
                 
                 step++;
                 
-                // Lógica del Embudo: En el paso 3 pedimos correo (opcional) y lanzamos el botón
-                if (step === 3) {
+                if (step === 4) {
                     setTimeout(() => {
                         addMessage("🔥 ¡Genial! Ya sabes cómo funciona esto. Para enviarte la prueba gratuita, deja tu correo en la caja de texto (opcional). O si ya decidiste empezar a facturar y ahorrar en softwares, tienes el botón de acceso directo abajo:", 'bot');
                         showPaymentButton();
@@ -136,10 +189,8 @@
             addMessage(email, 'user');
             
             if(email.includes('@') && email.includes('.')) {
-                // AQUÍ SE GUARDARÍA EL CORREO EN UN FUTURO (Google Sheets, etc)
                 addMessage("¡Perfecto! Tengo tu correo guardado. 📧 Te llegará la info ahí.", 'bot');
             } else {
-                // Si no puso correo válido, igual lo dejamos pasar al pago
                 addMessage("No hay problema, seguimos.", 'bot');
             }
 
@@ -148,7 +199,7 @@
             
             setTimeout(() => {
                 addMessage("¿Listo para asegurar tu cupo en la escuela y dejar de pagar herramientas de pago para siempre? 🚀", 'bot');
-                showPaymentButton(); // Volvemos a asegurar que el botón esté visible
+                showPaymentButton();
             }, 800);
         }
     </script>
