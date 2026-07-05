@@ -1,192 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextGen Creators | Soporte</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; color: #fff; }
-        .chat-container { width: 100%; max-width: 500px; background-color: #0a0a0a; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(138, 43, 226, 0.2); border-left: 1px solid #222; border-right: 1px solid #222; }
-        .chat-header { background-color: #000000; color: #ccc; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #8a2be2; display: flex; align-items: center; justify-content: center; gap: 12px; letter-spacing: 1px; }
-        .chat-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #8a2be2; box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-image: radial-gradient(circle at 50% 0%, #1a0a2e 0%, #0a0a0a 50%); }
-        .bot-msg-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; align-self: flex-start; }
-        .bot-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid #444; }
-        .message { max-width: 100%; padding: 12px 15px; border-radius: 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
-        .bot-message { background-color: #181818; color: #e0e0e0; border-top-left-radius: 0; border: 1px solid #2a2a2a; }
-        .user-message { background: linear-gradient(135deg, #4b0082, #6a0dad); color: #fff; align-self: flex-end; border-top-right-radius: 0; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; align-self: flex-start; margin-left: 40px; }
-        .option-btn { background-color: transparent; color: #b026ff; border: 1px solid #b026ff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: 0.3s; font-weight: bold; }
-        .option-btn:hover { background-color: #b026ff; color: #fff; box-shadow: 0 0 10px #b026ff; }
-        .input-area { background-color: #000; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
-        .text-input { flex: 1; background-color: #111; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 20px; outline: none; }
-        .text-input:focus { border-color: #8a2be2; }
-        .send-btn { background: linear-gradient(135deg, #8a2be2, #4169e1); border: none; color: #fff; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; }
-        .typing { font-style: italic; color: #888; font-size: 13px; align-self: flex-start; margin-left: 40px; }
-        .pay-btn { display: block; text-align: center; text-decoration: none; background: linear-gradient(90deg, #8a2be2, #005c4b); color: white; border: none; font-size: 16px; padding: 15px 20px; border-radius: 15px; margin-top: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
-    </style>
-</head>
-<body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <img src="images/logo.jpg?v=2" alt="NextGen Logo" class="chat-logo" onerror="this.onerror=null;this.src='https://i.ibb.co/3yChcQH/nextgen-logo.jpg';">
-            NextGen Creators | Soporte
-        </div>
-        <div class="chat-box" id="chatBox">
-            <div class="bot-msg-wrapper">
-                <img src="images/logo.jpg?v=2" class="bot-avatar" onerror="this.onerror=null;this.style.display='none'">
-                <div class="message bot-message">Welcome! 👋 / ¡Bienvenido!<br>Please select your language to begin:<br><i>Selecciona tu idioma para empezar:</i></div>
-            </div>
-            <div class="options-container" id="initialOptions">
-                <button class="option-btn" onclick="startChat('en')">English 🇺🇸</button>
-                <button class="option-btn" onclick="startChat('es')">Español 🇪🇸</button>
-            </div>
-        </div>
-        <div class="input-area" id="inputArea">
-            <input type="text" class="text-input" id="messageInput" placeholder="Type your message... / Escribe tu mensaje...">
-            <button class="send-btn" onclick="handleSend()">Send</button>
-        </div>
-    </div>
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-    <script>
-        let step = 1;
-        let isEmailStep = false;
-        let chatHistory = []; // AQUÍ GUARDAMOS LA MEMORIA DEL CHAT
-        const chatBox = document.getElementById('chatBox');
-        const initialOptions = document.getElementById('initialOptions');
-        const messageInput = document.getElementById('messageInput');
+const SYSTEM_PROMPT = `# Role
+Eres un Closer de Élite y Asesor de Ventas humano de la ESCUELA "NextGen Creators". Eres experto en psicología de ventas y especialista en convertir clippers en profesionales.
 
-        messageInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                handleSend();
-            }
-        });
+# REGLA DE HUMANIDAD Y MEMORIA (STRICT)
+1. NUNCA digas que eres una IA o un bot. Actúa como un asesor real.
+2. NUNCA saludes dos veces. Si ya saludaste al principio, en los siguientes mensajes ve directo al grano.
+3. HABILIDAD DE INTERPRETACIÓN: Los usuarios escriben con mala ortografía, sin signos, usando jerga o abreviaciones. Debes entender la intención y responder naturalmente. NUNCA le corrijas la ortografía ni digas "no entiendo". Si algo no tiene sentido, asume que te están preguntando sobre el curso y responde enfocado en vender.
 
-        function addMessage(text, sender) {
-            if (sender === 'bot') {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'bot-msg-wrapper';
-                const avatar = document.createElement('img');
-                avatar.src = "images/logo.jpg?v=2";
-                avatar.className = 'bot-avatar';
-                avatar.onerror = function() { this.style.display = 'none'; };
-                const div = document.createElement('div');
-                div.classList.add('message', 'bot-message');
-                div.innerText = text;
-                wrapper.appendChild(avatar);
-                wrapper.appendChild(div);
-                chatBox.appendChild(wrapper);
-            } else {
-                const div = document.createElement('div');
-                div.classList.add('message', 'user-message');
-                div.innerText = text;
-                chatBox.appendChild(div);
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
+# Language & Name Logic
+1. El usuario elegirá un idioma. Responde SOLO en ese idioma.
+2. Usa el nombre del usuario en el chat si te lo dio.
+
+# CIERRE DE VENTA INSISTENTE (STRICT)
+1. Tu objetivo es cerrar la venta. En cada respuesta debes incluir un llamado a la acción.
+2. NUNCA escribas el enlace "https://whop.com...". En su lugar, dile: "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora".
+3. Recalca siempre que el pago es único de $149.99 USD, que ahorran $100 al mes en softwares, y que si siguen el calendario de 30 días, van a facturar.
+
+# PROHIBIDO
+NUNCA hables de reembolsos, garantías de satisfacción, garantías de dinero, ni riesgos. NUNCA inventes precios (solo $149.99).
+
+# MANIFIESTO ANTI-MAGIA
+Si preguntan si es automático: "No, no es mágico. Te enseñamos habilidades reales para que las explotes desde tu celular. Si aplicas el calendario de 30 días, facturas.".
+
+# Estilo
+Respuestas cortas (máximo 2 párrafos), muy humanas, energía de clipero experto. Emojis (🔥, 🚀, 📱, ⛏️).`;
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(200).send('Cerebro del bot activo 🚀');
+  }
+
+  try {
+    const { history } = req.body;
+    const url = `https://api.groq.com/openai/v1/chat/completions`;
+
+    let messages = [{ role: "system", content: SYSTEM_PROMPT }];
+    
+    // FILTRO BLINDADO: Solo agregamos mensajes que tengan contenido real
+    if (Array.isArray(history)) {
+      history.forEach(msg => {
+        if (msg && msg.role && msg.content && String(msg.content).trim() !== '') {
+          messages.push({ role: msg.role, content: String(msg.content) });
         }
+      });
+    }
 
-        function addTyping() {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'bot-msg-wrapper';
-            wrapper.id = "typingWrapper";
-            const avatar = document.createElement('img');
-            avatar.src = "images/logo.jpg?v=2";
-            avatar.className = 'bot-avatar';
-            avatar.onerror = function() { this.style.display = 'none'; };
-            const div = document.createElement('div');
-            div.classList.add('message', 'bot-message', 'typing');
-            div.innerText = "Typing... / Escribiendo...";
-            wrapper.appendChild(avatar);
-            wrapper.appendChild(div);
-            chatBox.appendChild(wrapper);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    // Si por alguna razón no hay mensajes de usuario, le metemos uno por defecto para que Groq no truene
+    const hasUserMsg = messages.some(m => m.role === 'user');
+    if (!hasUserMsg) {
+      messages.push({ role: "user", content: "Hola" });
+    }
 
-        function removeTyping() {
-            const typing = document.getElementById('typingWrapper');
-            if (typing) typing.remove();
-        }
+    const groqResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: messages,
+        temperature: 0.6
+      })
+    });
 
-        function showPaymentButton() {
-            if (document.getElementById('payLink')) return;
-            const linkBtn = document.createElement('a');
-            linkBtn.id = 'payLink';
-            linkBtn.href = "https://whop.com/checkout/5Tu4P6MDL5ZAciyOxH-Prd9-7qD3-nw1O-mpMiCiit2tUR/";
-            linkBtn.target = "_blank";
-            linkBtn.className = 'pay-btn';
-            linkBtn.innerText = "Sí, quiero mi acceso ahora 🚀";
-            chatBox.appendChild(linkBtn);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    const data = await groqResponse.json();
 
-        function startChat(lang) {
-            if (initialOptions) initialOptions.style.display = 'none';
-            let prompt = "";
-            if (lang === 'es') {
-                addMessage("Español 🇪🇸", 'user');
-                prompt = "El usuario seleccionó Español. Saludalo y pídele su nombre para empezar.";
-            } else {
-                addMessage("English 🇺🇸", 'user');
-                prompt = "User selected English. Greet them and ask for their name to start.";
-            }
-            askAI(prompt);
-        }
+    if (!groqResponse.ok) {
+      console.error("Error de Groq:", JSON.stringify(data));
+      return res.status(200).json({ reply: "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. 🔥" });
+    }
 
-        function handleSend() {
-            const text = messageInput.value.trim();
-            if (!text) return;
-            if (isEmailStep) { submitEmail(text); } else { askAI(text); }
-            messageInput.value = '';
-        }
+    const botResponse = data.choices[0]?.message?.content || "Tienes el botón de acceso directo abajo para asegurar tu cupo ahora. 🚀";
+    
+    res.status(200).json({ reply: botResponse });
 
-        async function askAI(question) {
-            addMessage(question, 'user');
-            // Guardamos el mensaje del usuario en la memoria
-            chatHistory.push({ role: "user", content: question });
-            
-            addTyping();
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // Le enviamos toda la memoria al cerebro
-                    body: JSON.stringify({ history: chatHistory })
-                });
-                const data = await response.json();
-                removeTyping();
-                addMessage(data.reply, 'bot');
-                // Guardamos la respuesta del bot en la memoria
-                chatHistory.push({ role: "assistant", content: data.reply });
-                
-                step++;
-                if (step >= 3) {
-                    setTimeout(() => {
-                        showPaymentButton();
-                    }, 500);
-                }
-            } catch (error) {
-                removeTyping();
-                addMessage("El servidor está procesando tu solicitud. Por favor, haz clic en el botón de acceso de abajo para asegurar tu cupo ahora mismo.", 'bot');
-                showPaymentButton();
-            }
-        }
-
-        function submitEmail(email) {
-            addMessage(email, 'user');
-            if(email.includes('@') && email.includes('.')) {
-                addMessage("¡Perfecto! Tengo tu correo guardado. 📧", 'bot');
-            } else {
-                addMessage("No hay problema, seguimos.", 'bot');
-            }
-            isEmailStep = false;
-            messageInput.placeholder = "Escribe tu mensaje...";
-            setTimeout(() => {
-                addMessage("Asegura tu cupo ahora mismo. El acceso está limitado:", 'bot');
-                showPaymentButton();
-            }, 800);
-        }
-    </script>
-</body>
-</html>
+  } catch (error) {
+    console.error("Error general:", error);
+    res.status(200).json({ reply: "El servidor está saturado. Asegura tu cupo ahora mismo haciendo clic en el botón de acceso de abajo. 🚀" });
+  }
+};
